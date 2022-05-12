@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Login from '../components/Login/Login';
 import ExpensesWindow from './ExpensesWindow';
 import MainHeader from '../components/MainHeader/MainHeader';
+import AuthContext from '../context/auth-context';
 
 const LoginWindow = () => {
 
@@ -27,13 +28,18 @@ const LoginWindow = () => {
   }, []);
 
   return (
-    <React.Fragment>
-      <MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
+    <AuthContext.Provider
+      value={{
+        isLoggedIn: isLoggedIn,
+        onLogout: logoutHandler,
+      }}
+    >
+      <MainHeader />
       <main>
         {!isLoggedIn && <Login onLogin={loginHandler} />}
         {isLoggedIn && <ExpensesWindow onLogout={logoutHandler} />}
       </main>
-    </React.Fragment>
+    </AuthContext.Provider>
   );
 }
 
