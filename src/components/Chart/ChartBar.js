@@ -9,7 +9,7 @@ function ChartBar(props) {
   }
 
   return (
-    <div classname="chart-bar">
+    <div className="chart-bar">
       <div className="chart-bar__inner">
         <div
           className="chart-bar__fill"
