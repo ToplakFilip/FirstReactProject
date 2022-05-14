@@ -1,0 +1,25 @@
+
+.stats {
+    color: white;
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background-color: #202334;
+    text-align: center;
+    display: flex;
+    justify-content: space-around;
+    height: 10rem;
+  }
+
+.cardStats {
+    border-radius: 12px;
+    background-color: #E84855;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+    width: 0.25rem;
+    margin-right: 5rem;
+  }
+
+.pStyle {
+    position: relative;
+    left:0.5rem;
+}
