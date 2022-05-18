@@ -50,7 +50,7 @@ function ExpenseItem(expense) {
             Edit
           </Button>
         </div>
-        <div className={style["expense-item__price"]}>${expense.amount}</div>
+        <div className={style["expense-item__price"]}>€{expense.amount}</div>
       </Card>
     </li>
   );

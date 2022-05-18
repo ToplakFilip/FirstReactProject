@@ -68,7 +68,7 @@ const ItemProvider = (props) => {
   };
 
   const addItemHandler = (item) => {
-    addOrChangeExpenseHandler(item);
+    addExpenseHandler(item);
     dispatchItemAction({
       type: "ADD_ITEM",
       item: item,
@@ -76,7 +76,7 @@ const ItemProvider = (props) => {
   };
 
   const changeItemHandler = (item) => {
-    addOrChangeExpenseHandler(item);
+    changeExpenseHandler(item);
     dispatchItemAction({
       type: "CHANGE_ITEM",
       item: item,
@@ -84,13 +84,30 @@ const ItemProvider = (props) => {
   };
 
   const removeItemHandler = (id) => {
+    removeExpenseHandler(id);
     dispatchItemAction({
       type: "REMOVE_ITEM",
       id: id,
     });
   };
 
-  async function addOrChangeExpenseHandler(item) {
+  async function changeExpenseHandler(item) {
+    const response = await fetch(
+      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${item.expenseData.id}.json`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(item.expenseData),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Something went wrong!");
+    }
+  }
+
+  async function addExpenseHandler(item) {
     const response = await fetch(
       "https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses.json",
       {
@@ -99,6 +116,22 @@ const ItemProvider = (props) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(item.expenseData),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Something went wrong!");
+    }
+  }
+
+  async function removeExpenseHandler(id) {
+    const response = await fetch(
+      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${id}.json`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(id),
       }
     );
     if (!response.ok) {
