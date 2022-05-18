@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import "./Expenses.css";
 
 import ExpensesFilter from "./ExpensesFilter";
@@ -15,10 +15,16 @@ function Expenses() {
   const filterChangeHandler = (selectedYear) => {
     setFilteredYear(selectedYear);
   };
-
-  const filteredExpenses = ctx.items.filter((expense) => {
-    return expense.date.getFullYear().toString() === filteredYear;
-  });
+  const [filteredExpenses, setFilteredExpenses] = useState([]);
+  useEffect(() => {
+    if (ctx.items !== undefined) {
+      setFilteredExpenses(
+        ctx.items.filter((expense) => {
+          return expense.date.getFullYear().toString() === filteredYear;
+        })
+      );
+    }
+  }, [ctx.items, filteredYear, setFilteredExpenses]);
 
   const chartDataPoints = [
     { label: "Jan", value: 0 },
@@ -53,6 +59,17 @@ function Expenses() {
     averageCost: averageCost,
   };
 
+  let listOfExpenses = (
+    <p className="expenses-list__fallback">No Expenses found.</p>
+  );
+
+  if (ctx.httpError) {
+    listOfExpenses = <p className="expenses-list__fallback">{ctx.httpError}</p>;
+  } else if (ctx.isLoading) {
+    listOfExpenses = <p className="expenses-list__fallback">Loading...</p>;
+  } else {
+    listOfExpenses = <ExpensesList items={filteredExpenses} />;
+  }
   return (
     <Card className="expenses">
       <ExpensesFilter
@@ -61,7 +78,7 @@ function Expenses() {
       />
       <Chart dataPoints={chartDataPoints} totalSum={totalSum} />
       <Stats dataPoints={chartDataPoints} statistics={statistics} />
-      <ExpensesList items={filteredExpenses} />
+      {listOfExpenses}
     </Card>
   );
 }

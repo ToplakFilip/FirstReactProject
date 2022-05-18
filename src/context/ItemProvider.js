@@ -1,19 +1,15 @@
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 import ItemContext from "./item-context";
-
-const defaultItemState = {
-  items: [
-    { id: "1", title: "Ivo", amount: 294.67, date: new Date(2021, 4, 28) },
-    { id: "2", title: "Pero", amount: 66.6, date: new Date(2021, 6, 28) },
-    { id: "3", title: "Karlo", amount: 2314, date: new Date(2021, 2, 28) },
-    { id: "4", title: "Duro", amount: 111.1111, date: new Date(2021, 11, 28) },
-  ],
-  totalAmount: 0,
-};
+import useInitialItemLoader from "./InitialItemLoader";
 
 const itemReducer = (state, action) => {
   let updatedItems;
   let updatedItemsTotalAmount;
+
+  if (action.type === "INITIAL_ITEMS") {
+    updatedItems = action.items.items;
+    updatedItemsTotalAmount = action.totalAmount;
+  }
 
   if (action.type === "ADD_ITEM") {
     updatedItemsTotalAmount =
@@ -55,12 +51,24 @@ const itemReducer = (state, action) => {
 };
 
 const ItemProvider = (props) => {
-  const [itemState, dispatchItemAction] = useReducer(
-    itemReducer,
-    defaultItemState
-  );
+  const { expenses, isLoading, httpError } = useInitialItemLoader();
+
+  useEffect(() => {
+    addInitialItemsHandler(expenses);
+  }, [expenses]);
+
+  const [itemState, dispatchItemAction] = useReducer(itemReducer, []);
+
+  const addInitialItemsHandler = (items, totalAmount) => {
+    dispatchItemAction({
+      type: "INITIAL_ITEMS",
+      items: items,
+      totalAmount: totalAmount,
+    });
+  };
 
   const addItemHandler = (item) => {
+    addOrChangeExpenseHandler(item);
     dispatchItemAction({
       type: "ADD_ITEM",
       item: item,
@@ -68,6 +76,7 @@ const ItemProvider = (props) => {
   };
 
   const changeItemHandler = (item) => {
+    addOrChangeExpenseHandler(item);
     dispatchItemAction({
       type: "CHANGE_ITEM",
       item: item,
@@ -81,16 +90,34 @@ const ItemProvider = (props) => {
     });
   };
 
+  async function addOrChangeExpenseHandler(item) {
+    const response = await fetch(
+      "https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses.json",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(item.expenseData),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Something went wrong!");
+    }
+  }
+
   const itemContext = {
     items: itemState.items,
     totalAmount: itemState.totalAmount,
+    isLoading: isLoading,
+    httpError: httpError,
     addItem: addItemHandler,
     removeItem: removeItemHandler,
     changeItem: changeItemHandler,
   };
 
   return (
-    <ItemContext.Provider value={itemContext}>
+    <ItemContext.Provider value={itemContext} delayUpdate={true}>
       {props.children}
     </ItemContext.Provider>
   );
