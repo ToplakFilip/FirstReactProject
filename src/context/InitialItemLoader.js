@@ -1,26 +1,25 @@
-import { useState, useEffect } from "react";
+const InitialItemLoader = async (userData) => {
+  // const [expenses, setExpenses] = useState([]);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [httpError, setHttpError] = useState();
+  let items = [];
+  let totalAmount = 0;
+  let user = {};
+  let httpError = "";
 
-const useInitialItemLoader = () => {
-  const [expenses, setExpenses] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [httpError, setHttpError] = useState();
+  const fetchExpenses = async () => {
+    const response = await fetch(
+      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${userData}.json`,
+      { method: "GET", body: JSON.stringify() }
+    );
+    if (!response.ok) {
+      throw new Error("Something went wrong!");
+    }
 
-  useEffect(() => {
-    const fetchExpenses = async () => {
-      setIsLoading(true);
-      const response = await fetch(
-        "https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses.json"
-      );
-      if (!response.ok) {
-        throw new Error("Something went wrong!");
-      }
+    const responseData = await response.json();
 
-      const responseData = await response.json();
-
-      let items = [];
-      let totalAmount = 0;
-
-      for (const expenseKey in responseData) {
+    for (const expenseKey in responseData) {
+      if (expenseKey !== "password") {
         items.push({
           id: expenseKey,
           title: responseData[expenseKey].title,
@@ -29,22 +28,23 @@ const useInitialItemLoader = () => {
         });
         totalAmount += responseData[expenseKey].amount;
       }
-      setExpenses({ items, totalAmount });
-      setIsLoading(false);
+    }
+    user = {
+      username: userData,
+      password: responseData["password"],
     };
-
-    fetchExpenses().catch((error) => {
-      setIsLoading(false);
-      setHttpError(error.message);
-    });
-    return (() => {})
-  }, []);
-
-  return {
-    expenses,
-    isLoading,
-    httpError
+    const expenses = { items, totalAmount, user };
+    return {
+      expenses,
+      httpError,
+    };
   };
+
+  try {
+    return await fetchExpenses();
+  } catch (error) {
+    httpError = error.message;
+  }
 };
 
-export default useInitialItemLoader;
+export default InitialItemLoader;

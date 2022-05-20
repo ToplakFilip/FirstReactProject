@@ -1,14 +1,20 @@
-import { useReducer, useEffect } from "react";
+import { useReducer, useState } from "react";
 import ItemContext from "./item-context";
-import useInitialItemLoader from "./InitialItemLoader";
+import InitialItemLoader from "./InitialItemLoader";
 
 const itemReducer = (state, action) => {
   let updatedItems;
   let updatedItemsTotalAmount;
 
   if (action.type === "INITIAL_ITEMS") {
-    updatedItems = action.items.items;
+    updatedItems = action.items;
     updatedItemsTotalAmount = action.totalAmount;
+
+    return {
+      items: updatedItems,
+      totalAmount: updatedItemsTotalAmount,
+      user: action.user,
+    };
   }
 
   if (action.type === "ADD_ITEM") {
@@ -19,6 +25,7 @@ const itemReducer = (state, action) => {
     return {
       items: updatedItems,
       totalAmount: updatedItemsTotalAmount,
+      user: state.user,
     };
   }
   if (action.type === "CHANGE_ITEM") {
@@ -32,6 +39,12 @@ const itemReducer = (state, action) => {
       action.item.expenseData.amount;
     updatedItems = [...state.items];
     updatedItems[existingItemIndex] = action.item.expenseData;
+
+    return {
+      items: updatedItems,
+      totalAmount: updatedItemsTotalAmount,
+      user: state.user,
+    };
   }
 
   if (action.type === "REMOVE_ITEM") {
@@ -42,33 +55,35 @@ const itemReducer = (state, action) => {
 
     updatedItemsTotalAmount = state.totalAmount - existingItem.amount;
     updatedItems = state.items.filter((item) => item.id !== action.id);
-  }
 
-  return {
-    items: updatedItems,
-    totalAmount: updatedItemsTotalAmount,
-  };
+    return {
+      items: updatedItems,
+      totalAmount: updatedItemsTotalAmount,
+      user: state.user,
+    };
+  }
 };
 
 const ItemProvider = (props) => {
-  const { expenses, isLoading, httpError } = useInitialItemLoader();
-
-  useEffect(() => {
-    addInitialItemsHandler(expenses);
-  }, [expenses]);
-
   const [itemState, dispatchItemAction] = useReducer(itemReducer, []);
+  const [isLoading, setIsLoading] = useState(false);
+  const [httpError, setHttpError] = useState();
 
-  const addInitialItemsHandler = (items, totalAmount) => {
+  const addInitialItemsHandler = async (user) => {
+    setIsLoading(true);
+    const { expenses, httpError } = await InitialItemLoader(user.user);
+    setIsLoading(false);
+    setHttpError(httpError);
     dispatchItemAction({
       type: "INITIAL_ITEMS",
-      items: items,
-      totalAmount: totalAmount,
+      items: expenses.items,
+      totalAmount: expenses.totalAmount,
+      user: expenses.user,
     });
   };
 
   const addItemHandler = (item) => {
-    addExpenseHandler(item);
+    const { newItem } = addExpenseHttp(item, itemState.user.username);
     dispatchItemAction({
       type: "ADD_ITEM",
       item: item,
@@ -76,7 +91,7 @@ const ItemProvider = (props) => {
   };
 
   const changeItemHandler = (item) => {
-    changeExpenseHandler(item);
+    changeExpenseHttp(item, itemState.user.username);
     dispatchItemAction({
       type: "CHANGE_ITEM",
       item: item,
@@ -84,16 +99,16 @@ const ItemProvider = (props) => {
   };
 
   const removeItemHandler = (id) => {
-    removeExpenseHandler(id);
+    removeExpenseHttp(id, itemState.user.username);
     dispatchItemAction({
       type: "REMOVE_ITEM",
       id: id,
     });
   };
 
-  async function changeExpenseHandler(item) {
+  async function changeExpenseHttp(item, username) {
     const response = await fetch(
-      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${item.expenseData.id}.json`,
+      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${username}/${item.expenseData.id}.json`,
       {
         method: "PUT",
         headers: {
@@ -107,9 +122,9 @@ const ItemProvider = (props) => {
     }
   }
 
-  async function addExpenseHandler(item) {
+  async function addExpenseHttp(item, username) {
     const response = await fetch(
-      "https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses.json",
+      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${username}.json`,
       {
         method: "POST",
         headers: {
@@ -121,11 +136,23 @@ const ItemProvider = (props) => {
     if (!response.ok) {
       throw new Error("Something went wrong!");
     }
+    const responseData = await response.json();
+
+    let newItem = {};
+    for (const expenseKey in responseData) {
+      const newItem = {
+        id: expenseKey,
+        title: responseData[expenseKey].title,
+        amount: +responseData[expenseKey].amount,
+        date: new Date(responseData[expenseKey].date),
+      };
+    }
+    return newItem;
   }
 
-  async function removeExpenseHandler(id) {
+  async function removeExpenseHttp(id, username) {
     const response = await fetch(
-      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${id}.json`,
+      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${username}/${id}.json`,
       {
         method: "DELETE",
         headers: {
@@ -140,10 +167,12 @@ const ItemProvider = (props) => {
   }
 
   const itemContext = {
+    user: itemState.user,
     items: itemState.items,
     totalAmount: itemState.totalAmount,
     isLoading: isLoading,
     httpError: httpError,
+    initialItems: addInitialItemsHandler,
     addItem: addItemHandler,
     removeItem: removeItemHandler,
     changeItem: changeItemHandler,

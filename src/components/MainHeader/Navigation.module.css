@@ -16,6 +16,10 @@
   color: white;
 }
 
+p {
+  color: white;
+}
+
 .nav a:hover,
 .nav a:active {
   color: #f3cafb;

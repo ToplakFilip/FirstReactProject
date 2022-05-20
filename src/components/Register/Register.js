@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer } from "react";
 
 import Card from "../UI/Card";
-import classes from "./Login.module.css";
+import classes from "./Register.module.css";
 import Button from "../UI/Button";
 import Input from "../UI/Input";
 
@@ -25,9 +25,8 @@ const passwordReducer = (state, action) => {
   return { value: "", isValid: false };
 };
 
-const Login = (props) => {
+const Register = (props) => {
   const [formIsValid, setFormIsValid] = useState(false);
-  
 
   const [usernameState, dispatchUsername] = useReducer(usernameReducer, {
     value: "",
@@ -41,11 +40,11 @@ const Login = (props) => {
 
   const { isValid: usernameIsValid } = usernameState;
   const { isValid: passwordIsValid } = passwordState;
-
   useEffect(() => {
     const identifier = setTimeout(() => {
       setFormIsValid(usernameIsValid && passwordIsValid);
     }, 1000);
+
     return () => {
       clearTimeout(identifier);
     };
@@ -73,25 +72,15 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(usernameState.value, passwordState.value);
-    dispatchUsername("");
-    dispatchPassword("");
+    props.onRegister(usernameState.value, passwordState.value);
   };
 
-  const switchToRegister = () => {
-    props.isLoginScreen(false);
+  const switchToLogin = () => {
+    props.isLoginScreen(true);
   };
-
-  // TODO MAKE IT WORK
-  let errorScreen = <p></p>;
-  if(props.showErrorScreen === true) {
-    errorScreen = <p color="white">No user found.</p>;
-  } else {
-    errorScreen = <p></p>;
-  }
 
   return (
-    <Card className={classes.login}>
+    <Card className={classes.register}>
       <form onSubmit={submitHandler}>
         <Input
           id="username"
@@ -111,18 +100,17 @@ const Login = (props) => {
           onChange={passwordChangeHandler}
           onBlur={validatePasswordHandler}
         />
-        {errorScreen}
         <div className={classes.actions}>
-          <Button type="submit" disabled={!formIsValid}>
-            Login
+          <Button type="submit" className={classes.btn} disabled={!formIsValid}>
+            Register
           </Button>
         </div>
       </form>
-      <button type="button" className={classes.btn} onClick={switchToRegister}>
-        Switch to registration
-      </button>
+      <Button type="button" className={classes.btn} onClick={switchToLogin}>
+        Switch to login
+      </Button>
     </Card>
   );
 };
 
-export default Login;
+export default Register;

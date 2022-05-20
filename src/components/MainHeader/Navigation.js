@@ -11,12 +11,7 @@ const Navigation = (props) => {
       <ul>
         {ctx.isLoggedIn && (
           <li>
-            <a href="/">Users</a>
-          </li>
-        )}
-        {ctx.isLoggedIn && (
-          <li>
-            <a href="/">Admin</a>
+            <p color="white">{localStorage.getItem("username")}</p>
           </li>
         )}
         {ctx.isLoggedIn && (

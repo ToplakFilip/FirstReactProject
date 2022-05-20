@@ -8,7 +8,7 @@ import Chart from "../Chart/Chart";
 import Stats from "../Stats/Stats";
 import ItemContext from "../../context/item-context";
 
-function Expenses() {
+function Expenses(props) {
   const ctx = useContext(ItemContext);
 
   const [filteredYear, setFilteredYear] = useState("2020");
@@ -17,14 +17,16 @@ function Expenses() {
   };
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   useEffect(() => {
-    if (ctx.items !== undefined) {
-      setFilteredExpenses(
-        ctx.items.filter((expense) => {
-          return expense.date.getFullYear().toString() === filteredYear;
-        })
-      );
+    if (props.initializeItems) {
+      if (ctx.items !== undefined) {
+        setFilteredExpenses(
+          ctx.items.filter((expense) => {
+            return expense.date.getFullYear().toString() === filteredYear;
+          })
+        );
+      }
     }
-  }, [ctx.items, filteredYear, setFilteredExpenses]);
+  }, [ctx.items, filteredYear, setFilteredExpenses, props.initializeItems]);
 
   const chartDataPoints = [
     { label: "Jan", value: 0 },

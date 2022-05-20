@@ -1,9 +1,9 @@
-import LoginWindow from './Window/LoginWindow';
+import AuthWindow from './Window/AuthWindow';
 
 function App() {
 
   return (
-    <LoginWindow />
+    <AuthWindow />
   );
 }
 
