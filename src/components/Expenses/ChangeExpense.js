@@ -8,9 +8,9 @@ const ChangeExpense = (props) => {
 
   const [enteredTitle, setEnteredTitle] = useState(props.title);
   const [enteredAmount, setEnteredAmount] = useState(props.amount);
-  const [enteredDate, setEnteredDate] = useState(props.date.toISOString().slice(0, 10));
-  // TODO NAPRAVITI BOLJE ZATVARANJE
-  const [closeWindow, setCloseWindow] = useState();
+  const [enteredDate, setEnteredDate] = useState(
+    props.date.toISOString().slice(0, 10)
+  );
 
   const titleChangeHandler = (event) => {
     setEnteredTitle(event.target.value);
@@ -24,19 +24,17 @@ const ChangeExpense = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-
-    const expenseData = {
+    ctx.changeItem({
       id: props.id,
       title: enteredTitle,
       amount: +enteredAmount,
       date: new Date(enteredDate),
-    };
-    ctx.changeItem({ expenseData });
+    });
     setEnteredTitle("");
     setEnteredAmount("");
     setEnteredDate("");
 
-    setCloseWindow(props.onHideChangeExp);
+    props.onHideChangeExp();
   };
 
   return (

@@ -12,7 +12,7 @@ const Stats = (props) => {
       <Card className={style.cardStats}>
         <h3 className={style.pStyle}>HIGHEST EXPENSE</h3>
 
-        <p className={style.pStyle}>€{props.statistics.highestExpense}</p>
+        <p className={style.pStyle}>€{props.statistics.highestExpense.toFixed(2)}</p>
       </Card>
       <Card className={style.cardStats}>
         <h3 className={style.pStyle}>AVERAGE COST</h3>

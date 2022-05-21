@@ -5,13 +5,14 @@ import Register from "../components/Register/Register";
 import ExpensesWindow from "./ExpensesWindow";
 import MainHeader from "../components/MainHeader/MainHeader";
 import AuthContext from "../context/auth-context";
+import loaderStyle from "./Loader.module.css";
 
 const AuthWindow = () => {
   const ctx = useContext(AuthContext);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const [isLoginScreen, setIsLoginScreen] = useState(true);
+  const [isRegisterScreen, setIsRegisterScreen] = useState(false);
+  const [loginFailed, setLoginFailed] = useState(false);
 
   const registerHandler = (username, password) => {
     ctx.addUser({ username, password });
@@ -25,8 +26,8 @@ const AuthWindow = () => {
     }
   };
 
-  const windowSwitchHandler = (isLoginScreen) => {
-    setIsLoginScreen(isLoginScreen);
+  const windowSwitchHandler = (isRegisterScreen) => {
+    setIsRegisterScreen(isRegisterScreen);
   };
 
   useEffect(() => {
@@ -39,12 +40,16 @@ const AuthWindow = () => {
   let currentWindow;
   if (!ctx.isLoggedIn) {
     currentWindow =
-      isLoginScreen === true ? (
-        <Login onLogin={loginHandler} isLoginScreen={windowSwitchHandler} />
+      isRegisterScreen === false ? (
+        <Login
+          onLogin={loginHandler}
+          isRegisterScreen={windowSwitchHandler}
+          showErrorScreen={loginFailed}
+        />
       ) : (
         <Register
           onRegister={registerHandler}
-          isLoginScreen={windowSwitchHandler}
+          isRegisterScreen={windowSwitchHandler}
         />
       );
   } else {
@@ -54,7 +59,14 @@ const AuthWindow = () => {
   return (
     <React.Fragment>
       <MainHeader />
-      <main>{currentWindow}</main>
+      <main>
+        {currentWindow}{" "}
+        {ctx.isLoading && (
+          <div className={loaderStyle["lds-circle"]}>
+            <div></div>
+          </div>
+        )}
+      </main>
     </React.Fragment>
   );
 };

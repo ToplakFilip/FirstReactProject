@@ -79,10 +79,9 @@ const Login = (props) => {
   };
 
   const switchToRegister = () => {
-    props.isLoginScreen(false);
+    props.isRegisterScreen(true);
   };
 
-  // TODO MAKE IT WORK
   let errorScreen = <p></p>;
   if(props.showErrorScreen === true) {
     errorScreen = <p color="white">No user found.</p>;

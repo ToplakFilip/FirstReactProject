@@ -22,13 +22,12 @@ function ExpenseForm(props) {
   const submitHandler = (event) => {
     event.preventDefault();
 
-    const expenseData = {
+    ctx.addItem({
       id: Math.random().toString(),
       title: enteredTitle,
       amount: +enteredAmount,
       date: new Date(enteredDate),
-    };
-    ctx.addItem({ expenseData });
+    });
     setEnteredTitle("");
     setEnteredAmount("");
     setEnteredDate("");

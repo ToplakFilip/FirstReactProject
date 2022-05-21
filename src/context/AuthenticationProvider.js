@@ -3,7 +3,7 @@ import AuthContext from "./auth-context";
 
 const AuthenticationProvider = (props) => {
   const [currentUser, setCurrentUser] = useState();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [httpError, setHttpError] = useState();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 

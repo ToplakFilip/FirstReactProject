@@ -18,10 +18,9 @@ const itemReducer = (state, action) => {
   }
 
   if (action.type === "ADD_ITEM") {
-    updatedItemsTotalAmount =
-      state.totalAmount + action.item.expenseData.amount;
+    updatedItemsTotalAmount = state.totalAmount + action.item.amount;
 
-    updatedItems = state.items.concat(action.item.expenseData);
+    updatedItems = state.items.concat(action.item);
     return {
       items: updatedItems,
       totalAmount: updatedItemsTotalAmount,
@@ -30,15 +29,15 @@ const itemReducer = (state, action) => {
   }
   if (action.type === "CHANGE_ITEM") {
     const existingItemIndex = state.items.findIndex(
-      (item) => item.id === action.item.expenseData.id
+      (item) => item.id === action.item.id
     );
 
     updatedItemsTotalAmount =
       state.totalAmount -
       state.items[existingItemIndex].amount +
-      action.item.expenseData.amount;
+      action.item.amount;
     updatedItems = [...state.items];
-    updatedItems[existingItemIndex] = action.item.expenseData;
+    updatedItems[existingItemIndex] = action.item;
 
     return {
       items: updatedItems,
@@ -82,8 +81,10 @@ const ItemProvider = (props) => {
     });
   };
 
-  const addItemHandler = (item) => {
-    const { newItem } = addExpenseHttp(item, itemState.user.username);
+  const addItemHandler = async (item) => {
+    setIsLoading(true);
+    item = await addExpenseHttp(item, itemState.user.username);
+    setIsLoading(false);
     dispatchItemAction({
       type: "ADD_ITEM",
       item: item,
@@ -108,13 +109,13 @@ const ItemProvider = (props) => {
 
   async function changeExpenseHttp(item, username) {
     const response = await fetch(
-      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${username}/${item.expenseData.id}.json`,
+      `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${username}/${item.id}.json`,
       {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(item.expenseData),
+        body: JSON.stringify(item),
       }
     );
     if (!response.ok) {
@@ -122,7 +123,7 @@ const ItemProvider = (props) => {
     }
   }
 
-  async function addExpenseHttp(item, username) {
+  const addExpenseHttp = async (item, username) => {
     const response = await fetch(
       `https://expenses-ce488-default-rtdb.europe-west1.firebasedatabase.app/expenses/${username}.json`,
       {
@@ -130,7 +131,7 @@ const ItemProvider = (props) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(item.expenseData),
+        body: JSON.stringify(item),
       }
     );
     if (!response.ok) {
@@ -139,16 +140,19 @@ const ItemProvider = (props) => {
     const responseData = await response.json();
 
     let newItem = {};
-    for (const expenseKey in responseData) {
-      const newItem = {
-        id: expenseKey,
-        title: responseData[expenseKey].title,
-        amount: +responseData[expenseKey].amount,
-        date: new Date(responseData[expenseKey].date),
-      };
-    }
-    return newItem;
-  }
+    newItem = {
+      id: responseData.name,
+      title: item.title,
+      amount: +item.amount,
+      date: new Date(item.date),
+    };
+    return {
+      id: newItem.id,
+      title: newItem.title,
+      amount: newItem.amount,
+      date: newItem.date,
+    };
+  };
 
   async function removeExpenseHttp(id, username) {
     const response = await fetch(

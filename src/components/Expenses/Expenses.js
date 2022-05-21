@@ -7,6 +7,7 @@ import ExpensesList from "./ExpensesList";
 import Chart from "../Chart/Chart";
 import Stats from "../Stats/Stats";
 import ItemContext from "../../context/item-context";
+import LineGraph from "../Chart/LineGraph";
 
 function Expenses(props) {
   const ctx = useContext(ItemContext);
@@ -81,6 +82,7 @@ function Expenses(props) {
       <Chart dataPoints={chartDataPoints} totalSum={totalSum} />
       <Stats dataPoints={chartDataPoints} statistics={statistics} />
       {listOfExpenses}
+      <LineGraph expenses={filteredExpenses}/>
     </Card>
   );
 }

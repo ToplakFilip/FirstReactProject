@@ -76,7 +76,7 @@ const Register = (props) => {
   };
 
   const switchToLogin = () => {
-    props.isLoginScreen(true);
+    props.isRegisterScreen(false);
   };
 
   return (

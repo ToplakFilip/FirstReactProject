@@ -1,7 +1,4 @@
 const InitialItemLoader = async (userData) => {
-  // const [expenses, setExpenses] = useState([]);
-  // const [isLoading, setIsLoading] = useState(true);
-  // const [httpError, setHttpError] = useState();
   let items = [];
   let totalAmount = 0;
   let user = {};
