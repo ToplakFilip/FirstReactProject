@@ -1,26 +1,27 @@
 {
   "name": "react-complete-guide",
   "version": "0.1.0",
-  "homepage": "https://gitname.github.io/react-gh-pages",
+  "homepage": "https://toplakfilip.github.io/FirstReactProject",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.5.0",
     "chart.js": "^3.7.1",
-    "react": "^17.0.1",
+    "next": "^12.1.6",
+    "react": "^17.0.2",
     "react-chartjs-2": "^4.1.0",
     "react-charts": "^3.0.0-beta.36",
-    "react-dom": "^17.0.1",
+    "react-dom": "^17.0.2",
     "react-scripts": "4.0.1",
     "react-tooltip": "^4.2.21",
     "web-vitals": "^0.2.4"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
+    "start": "react-scripts start",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "build": "react-scripts build",
+    "build": "react-scripts build && copy build\\index.html build\\404.html",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
