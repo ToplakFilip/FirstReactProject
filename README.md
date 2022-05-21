@@ -7,6 +7,10 @@ Includes statistics that display graphical and numerical summaries of data.
 
 ## Prerequisites
 
+Visit:
+https://toplakfilip.github.io/FirstReactProject/
+
+Or start locally:
 ```bash
 npm install
 npm install react-tooltip
@@ -14,7 +18,7 @@ npm install chart.js
 npm install react-chartjs-2
 npm start
 ```
-Register a new user or use the test user (username: "ivica1", pass: "111111").
+Register a new user or use (username: "ivica1", pass: "1111111").
 
 ## Built with
 
